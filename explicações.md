@@ -4,13 +4,13 @@ Atividade em dupla.
 # Funções de cada uma no projeto
 
 María Julia Garnham Ferreira: 
-MaterialItem.js
-MateriasScreen.js
-FormularioTarefaScreen.js
+MaterialItem.js - 
+MateriasScreen.js - 
+FormularioTarefaScreen.js - 
 app.js
 
 Sofia Marcolongo dos Santos: 
-TarefaItem.js 
-TarefasScreen.js
-README.md
+TarefaItem.js - 
+TarefasScreen.js - 
+README.md - 
 index.js
