@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   View,
   Text,
@@ -13,6 +12,7 @@ import MateriaItem from "../components/MateriaItem";
 
 export default function MateriasScreen({ navigation }) {
   const [nomeMateria, setNomeMateria] = useState("");
+  const [descricaoMateria, setDescricaoMateria] = useState("")
   const [materias, setMaterias] = useState([]);
 
   function adicionarMateria() {
@@ -23,12 +23,14 @@ export default function MateriasScreen({ navigation }) {
     const novaMateria = {
       id: Date.now().toString(),
       nome: nomeMateria,
+      descricao: descricaoMateria, 
       tarefas: [],
     };
 
     setMaterias([...materias, novaMateria]);
 
     setNomeMateria("");
+    setDescricaoMateria(""); 
   }
 
   function excluirMateria(id) {
@@ -48,9 +50,16 @@ export default function MateriasScreen({ navigation }) {
 
       <TextInput
         style={styles.input}
-        placeholder="Digite uma matéria"
+        placeholder="Nome da matéria (ex: Matemática)"
         value={nomeMateria}
         onChangeText={setNomeMateria}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Descrição da matéria (ex: Prof. Carlos - Sala 12)"
+        value={descricaoMateria}
+        onChangeText={setDescricaoMateria}
       />
 
       <TouchableOpacity

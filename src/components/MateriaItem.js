@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   StyleSheet,
   Text,
@@ -22,7 +21,9 @@ export default function MateriaItem({
         </Text>
 
         <Text style={styles.textoTarefas}>
-          Matéria de estudos
+          {materia.descricao && materia.descricao.trim() !== ""
+            ? materia.descricao
+            : "Sem descrição"}
         </Text>
 
       </View>
