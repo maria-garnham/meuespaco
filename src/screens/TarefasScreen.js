@@ -1,7 +1,4 @@
-// TELA - O QUE VAI FAZER: mostra as tarefas de uma matéria específica
-
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,17 +7,55 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import TarefaItem from "../components/TarefaItem";
 
-export default function TarefaScreen({ route, navigation }) {
+export default function TarefasScreen({ route, navigation }) {
   const { materia } = route.params;
+  const CHAVE_TAREFAS = `@tarefas_${materia.id}`;
 
   const [nomeTarefa, setNomeTarefa] = useState("");
+  const [tarefas, setTarefas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
 
-  const [tarefas, setTarefas] = useState(
-    materia.tarefas || []
-  );
+  // 1. Carrega as tarefas salvas desta matéria ao abrir a tela
+  useEffect(() => {
+    async function carregarTarefas() {
+      try {
+        const dadosSalvos = await AsyncStorage.getItem(CHAVE_TAREFAS);
+        if (dadosSalvos !== null) {
+          setTarefas(JSON.parse(dadosSalvos));
+        } else {
+          setTarefas(materia.tarefas || []);
+        }
+      } catch (erro) {
+        console.error("Erro ao carregar tarefas:", erro);
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    carregarTarefas();
+  }, []);
+
+  // 2. Salva no AsyncStorage sempre que as tarefas dessa matéria mudarem
+  useEffect(() => {
+    async function salvarTarefas() {
+      if (!carregando) {
+        try {
+          await AsyncStorage.setItem(
+            CHAVE_TAREFAS,
+            JSON.stringify(tarefas)
+          );
+        } catch (erro) {
+          console.error("Erro ao salvar tarefas:", erro);
+        }
+      }
+    }
+
+    salvarTarefas();
+  }, [tarefas, carregando]);
 
   function adicionarTarefa() {
     const tituloLimpo = nomeTarefa.trim();
@@ -87,13 +122,13 @@ export default function TarefaScreen({ route, navigation }) {
       <Text style={styles.progresso}>
         {concluidas} de {tarefas.length}{" "}
         {tarefas.length === 1
-          ? "assunto concluído"
-          : "assuntos concluídos"}
+          ? "tarefa concluída"
+          : "tarefas concluídas"}
       </Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Digite um assunto"
+        placeholder="Digite uma tarefa"
         value={nomeTarefa}
         onChangeText={setNomeTarefa}
         onSubmitEditing={adicionarTarefa}
@@ -104,7 +139,7 @@ export default function TarefaScreen({ route, navigation }) {
         onPress={adicionarTarefa}
       >
         <Text style={styles.textoBotao}>
-          + Adicionar Assunto
+          + Adicionar Tarefa
         </Text>
       </TouchableOpacity>
 
@@ -121,9 +156,9 @@ export default function TarefaScreen({ route, navigation }) {
         )}
         ListEmptyComponent={
           <Text style={styles.textoVazio}>
-            Nenhum assunto cadastrado.
+            Nenhuma tarefa cadastrada.
             {"\n"}
-            Adicione os assuntos que você precisa estudar.
+            Adicione as tarefas que você precisa estudar.
           </Text>
         }
       />

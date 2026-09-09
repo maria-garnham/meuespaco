@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,53 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import MateriaItem from "../components/MateriaItem";
 
+const CHAVE_MATERIAS = "@minhas_materias";
+
 export default function MateriasScreen({ navigation }) {
   const [nomeMateria, setNomeMateria] = useState("");
-  const [descricaoMateria, setDescricaoMateria] = useState("")
+  const [descricaoMateria, setDescricaoMateria] = useState("");
   const [materias, setMaterias] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+
+  // 1. Carrega as matérias salvas ao abrir o aplicativo
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        const dadosSalvos = await AsyncStorage.getItem(CHAVE_MATERIAS);
+        if (dadosSalvos !== null) {
+          setMaterias(JSON.parse(dadosSalvos));
+        }
+      } catch (erro) {
+        console.error("Erro ao carregar matérias:", erro);
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    carregarDados();
+  }, []);
+
+  // 2. Salva no AsyncStorage toda vez que a lista de matérias mudar
+  useEffect(() => {
+    async function salvarDados() {
+      if (!carregando) {
+        try {
+          await AsyncStorage.setItem(
+            CHAVE_MATERIAS,
+            JSON.stringify(materias)
+          );
+        } catch (erro) {
+          console.error("Erro ao salvar matérias:", erro);
+        }
+      }
+    }
+
+    salvarDados();
+  }, [materias, carregando]);
 
   function adicionarMateria() {
     if (nomeMateria.trim() === "") {
@@ -23,14 +63,14 @@ export default function MateriasScreen({ navigation }) {
     const novaMateria = {
       id: Date.now().toString(),
       nome: nomeMateria,
-      descricao: descricaoMateria, 
+      descricao: descricaoMateria,
       tarefas: [],
     };
 
     setMaterias([...materias, novaMateria]);
 
     setNomeMateria("");
-    setDescricaoMateria(""); 
+    setDescricaoMateria("");
   }
 
   function excluirMateria(id) {
